@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Loading Overlay -->
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai');
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            background: rgb(252, 233, 233);
+            background: linear-gradient(0deg, rgba(252, 233, 233, 1) 0%, rgba(224, 244, 241, 1) 26%, rgba(255, 255, 255, 1) 71%);
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            flex-direction: column;
+        }
+
+        .list {
+            background-color: #ffffff;
+            padding: 1.8em 1.2em;
+            box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+            border-radius: 0.6em;
+        }
+
+        footer {
+            margin-top: 30px;
+            background-color: #000;
+            width: 100%;
+            padding: 2px;
+            position: fixed;
+            bottom: 0;
+        }
+
+        footer p,
+        footer a {
+            text-decoration: none;
+            margin: 0;
+        }
+
+        footer .fa {
+            color: #fff740;
+        }
+    </style>
+</head>
+
+<body>
+
+    <center class="mb-4">
+        <br />
+        <h2>ฟอร์มสมัครใช้งานระบบดูแต้มสะสม</h2>
+        <h5 class="text-center text-danger">โครงการ จิตอาสา โคกมั่งงอย พลัส</h5>
+    </center>
+
+    <div class="container p-4 bg-white rounded shadow">
+        <form id="myForm">
+            <div class="mb-3">
+                <label for="numberId" class="form-label">รหัส</label>
+                <input type="text" id="numberId" name="numberId" class="form-control" maxlength="15" placeholder="กรอกรหัส" required>
+            </div>
+          
+            <div class="mb-3">
+                <label for="nameId" class="form-label">ชื่อ - นามสกุล</label>
+                <input type="text" id="nameId" name="nameId" class="form-control" placeholder="กรอกชื่อ - นามสกุล" required>
+            </div>
+          
+            <div class="mb-3">
+                <label for="nameId" class="form-label">เบอร์โทรศัพท์</label>
+                <input type="text" id="phoneId" name="phoneId" class="form-control" placeholder="กรอกเบอร์โทรศัพท์" required>
+            </div>
+
+
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        const url = "https://script.google.com/macros/s/AKfycbxSP4TkqvwGqNm4T-QQkNDdVnUKMABKRB1MSXi4kSu9j-c5p1k-p43Ml_dkW30KfZcE/exec";
+        const form = document.getElementById("myForm");
+        let userId = ''; 
+
+        // LIFF Initialization
+        liff.init({ liffId: "2007032836-dlZJGXNa" })
+            .then(() => {
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    liff.getProfile()
+                        .then(profile => {
+                            userId = profile.userId;
+                        })
+                        .catch(err => {
+                            Swal.fire('Error', 'Unable to fetch LINE profile.', 'error');
+                        });
+                }
+            })
+            .catch(err => {
+                Swal.fire('Error', 'LIFF Initialization failed.', 'error');
+            });
+
+      
+      
+        // Form submit
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            $.LoadingOverlay("show");
+
+            const nameId = document.getElementById("nameId").value;
+            const phoneId = document.getElementById("phoneId").value;
+            const numberId = document.getElementById("numberId").value;
+
+            const data = {
+                nameId: nameId,
+                roleId: phoneId,
+                numberId: numberId,
+                userId
+            };
+
+            fetch(url, {
+                method: "POST",
+                body: JSON.stringify(data)
+            })
+            .then(response => response.text())
+            .then(data => {
+                Swal.fire('Success', data, 'success');
+                $.LoadingOverlay("hide");
+                form.reset();
+            })
+            .catch(error => {
+                Swal.fire('Error', error.toString(), 'error');
+                $.LoadingOverlay("hide");
+            });
+        });
+    </script>
+
+    <footer class="text-center text-lg-start bg-light text-muted"
+        style="position: static;left: 0;bottom: 0;width: 100%;">
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+            © 2024 Copyright | พัฒนาโดย อบต.โคกมั่งงอย<br />
+        </div>
+    </footer>
+
+</body>
+
+</html>
